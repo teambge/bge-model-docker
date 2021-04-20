@@ -1,0 +1,65 @@
+.PHONY: login build push run debug clean
+
+REPO ?= teambge
+PY_VERSIONS := python3.6 python2.7
+SOURCE_DIR := ./dockerfiles
+PREFIX := model-
+IMAGE_NAME := $(REPO)/$(PREFIX)$(PY_VERSION):$(SDK_VERSION)
+
+
+py_version_check:
+ifndef PY_VERSION
+	$(error PY_VERSION is undefined)
+endif
+
+
+sdk_version_check:
+ifndef SDK_VERSION
+	$(error SDK_VERSION is undefined)
+endif
+
+
+build: sdk_version_check
+	@if [ -n "$(PY_VERSION)" ]; then \
+		echo "docker build -f "$(SOURCE_DIR)/$(PY_VERSION)/Dockerfile" -t "$(IMAGE_NAME)" . "; \
+		docker build -f "$(SOURCE_DIR)/$(PY_VERSION)/Dockerfile" -t "$(IMAGE_NAME)" . ; \
+	else \
+		for PY_VERSION in $(PY_VERSIONS); do \
+			echo "$(SDK_VERSION)"; \
+			make build PY_VERSION=$$PY_VERSION SDK_VERSION=$(SDK_VERSION) || exit 1; \
+		done \
+	fi
+
+
+login:
+	@if [ -n "$(DOCKER_USERNAME)" ] && [ -n "$(DOCKER_PASSWORD)" ]; then \
+		echo $(DOCKER_PASSWORD) | docker login -u $(DOCKER_USERNAME) --password-stdin; \
+	else \
+		echo "The arguments DOCKER_USERNAME and DOCKER_PASSWORD is required for docker login."; \
+	fi
+
+
+push: sdk_version_check login
+	@if [ -n "$(PY_VERSION)" ]; then \
+		echo "docker push $(IMAGE_NAME)"; \
+		docker push $(IMAGE_NAME); \
+	else \
+		for PY_VERSION in $(PY_VERSIONS); do \
+			make push PY_VERSION=$$PY_VERSION; \
+		done \
+	fi
+
+
+run: sdk_version_check py_version_check
+	docker run -it --rm $(IMAGE_NAME) /bin/bash
+
+
+debug: sdk_version_check py_version_check
+	docker create --name=debug -it $(IMAGE_NAME) /bin/bash \
+		&& docker start debug \
+		&& docker exec -it -u root debug /bin/bash
+
+
+clean:
+	docker image prune \
+	&& docker rmi $(docker images -f "dangling=true" -q)
