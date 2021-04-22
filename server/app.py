@@ -119,7 +119,7 @@ class MainHandler(tornado.web.RequestHandler):
 def make_app():
     [i.setFormatter(LogFormatter()) for i in logging.getLogger().handlers]
     return tornado.httpserver.HTTPServer(tornado.web.Application([
-        (r"\/model\/([0-9a-zA-Z]{15})", MainHandler),
+        (r"\/model\/([0-9a-zA-Z]+)", MainHandler),
     ], debug=True))
 
 
