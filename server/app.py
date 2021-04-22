@@ -80,9 +80,15 @@ class MainHandler(tornado.web.RequestHandler):
                 'data': result
             }))
             return
+        try:
+            result = json.loads(result)
+        except ValueError:
+            return self.error_handler(
+                500, msg='Model response expects a json dict string.'
+                    .format(result))
         if not isinstance(result, dict):
             return self.error_handler(
-                500, msg='Invalid model response type, expect a dict.'
+                500, msg='Model response expects a json dict string.'
                     .format(result))
         for field in ('model_code', 'model_msg', 'model_data'):
             if field not in result:
