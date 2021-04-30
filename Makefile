@@ -4,8 +4,7 @@ REPO ?= teambge
 PY_VERSIONS := python3.6 python2.7
 SOURCE_DIR := ./dockerfiles
 PREFIX := model-
-IMAGE_NAME := $(REPO)/$(PREFIX)$(PY_VERSION):$(SDK_VERSION)
-
+IMAGE_NAME := $(REPO)/$(if $(filter $(ENVIRONMENT),build),$(PREFIX)$(PY_VERSION):$(SDK_VERSION),$(ENVIRONMENT)-$(PREFIX)$(PY_VERSION):latest)
 
 py_version_check:
 ifndef PY_VERSION
@@ -19,16 +18,10 @@ ifndef SDK_VERSION
 endif
 
 
-build: sdk_version_check
-	@if [ -n "$(PY_VERSION)" ]; then \
-		echo "docker build -f "$(SOURCE_DIR)/$(PY_VERSION)/Dockerfile" -t "$(IMAGE_NAME)" . "; \
-		docker build -f "$(SOURCE_DIR)/$(PY_VERSION)/Dockerfile" -t "$(IMAGE_NAME)" . ; \
-	else \
-		for PY_VERSION in $(PY_VERSIONS); do \
-			echo "$(SDK_VERSION)"; \
-			make build PY_VERSION=$$PY_VERSION SDK_VERSION=$(SDK_VERSION) || exit 1; \
-		done \
-	fi
+environment_check:
+ifndef ENVIRONMENT
+	$(error ENVIRONMENT is undefined)
+endif
 
 
 login:
@@ -39,27 +32,37 @@ login:
 	fi
 
 
-push: sdk_version_check login
+build: sdk_version_check environment_check
+	@if [ -n "$(PY_VERSION)" ]; then \
+		echo 'docker build -f "$(SOURCE_DIR)/$(PY_VERSION)/$(ENVIRONMENT)/Dockerfile" -t "$(IMAGE_NAME)" . '; \
+		docker build -f "$(SOURCE_DIR)/$(PY_VERSION)/$(ENVIRONMENT)/Dockerfile" -t "$(IMAGE_NAME)" . ; \
+	else \
+		for PY_VERSION in $(PY_VERSIONS); do \
+			make build PY_VERSION=$$PY_VERSION ENVIRONMENT=$(ENVIRONMENT) SDK_VERSION=$(SDK_VERSION) || exit 1; \
+		done \
+	fi
+
+
+push: sdk_version_check environment_check login
 	@if [ -n "$(PY_VERSION)" ]; then \
 		echo "docker push $(IMAGE_NAME)"; \
 		docker push $(IMAGE_NAME); \
 	else \
 		for PY_VERSION in $(PY_VERSIONS); do \
-			make push PY_VERSION=$$PY_VERSION; \
+			make push PY_VERSION=$$PY_VERSION ENVIRONMENT=$(ENVIRONMENT) SDK_VERSION=$(SDK_VERSION) || exit 1; \
 		done \
 	fi
 
 
-run: sdk_version_check py_version_check
+run: sdk_version_check py_version_check environment_check
 	docker run -it --rm $(IMAGE_NAME) /bin/bash
 
 
-debug: sdk_version_check py_version_check
+debug: sdk_version_check py_version_check environment_check
 	docker create --name=debug -it $(IMAGE_NAME) /bin/bash \
 		&& docker start debug \
 		&& docker exec -it -u root debug /bin/bash
 
 
 clean:
-	docker image prune \
-	&& docker rmi $(docker images -f "dangling=true" -q)
+	docker image prune

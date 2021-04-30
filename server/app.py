@@ -134,4 +134,5 @@ if __name__ == "__main__":
     app.listen(SERVER_PORT)
     print('Starting server at http://0.0.0.0:{}/'.format(SERVER_PORT))
     print('Quit the server with CONTROL-C.')
+    print()
     tornado.ioloop.IOLoop.current().start()
