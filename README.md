@@ -2,6 +2,12 @@
 
 构建 python2.7、python3.6 的基础和运行镜像。
 
+## 登录 Docker 仓库
+
+```
+$ make login DOCKER_USERNAME=<账号> DOCKER_PASSWORD=<密码>
+```
+
 ## 基础环境镜像
 
 ```
