@@ -6,11 +6,6 @@
 
 ```
 $ make login DOCKER_USERNAME=<账号> DOCKER_PASSWORD=<密码>
-```
-
-## 基础环境镜像
-
-```
 $ make build SDK_VERSION=<SDK版本号> ENVIRONMENT=basic
 $ make build SDK_VERSION=<SDK版本号> ENVIRONMENT=basic PY_VERSION=python2.7
 $ make build SDK_VERSION=<SDK版本号> ENVIRONMENT=basic PY_VERSION=python3.6
