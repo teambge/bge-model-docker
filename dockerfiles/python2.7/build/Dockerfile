@@ -7,5 +7,5 @@ ENV PATH="/code:/code/lib:${PATH}"
 
 RUN pip install -U tornado
 
-WORKDIR /server
+WORKDIR /code
 COPY ./server/ /server/
