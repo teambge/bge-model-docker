@@ -6,7 +6,7 @@ LABEL maintainer="teambge"
 RUN echo "ALL ALL=NOPASSWD: ALL" >> /etc/sudoers
 
 # Install dev dependencies.
-RUN pip install -U six pip setuptools
+RUN pip install -U pip six setuptools
 
 # Buildin modules from aliyun-fc
 RUN pip install oss2==2.6.0 \
