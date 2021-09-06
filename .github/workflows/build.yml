@@ -1,8 +1,7 @@
 name: BGE Model Docker Image Actions
 on:
-  push:
+  create:
     tags:
-      - '*'
 
 jobs:
 
