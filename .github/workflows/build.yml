@@ -7,10 +7,12 @@ on:
 jobs:
 
   base_job:
-    name: Create Base Image
+    name: Base Image Job
     runs-on: ubuntu-18.04
     steps:
-      - run: make build SDK_VERSION=0.1.1 ENVIRONMENT=base
+      - uses: actions/checkout@v2
+      - name: Build Base Image
+        run: make build SDK_VERSION=0.1.1 ENVIRONMENT=base
 
   build_job:
     name: Create Build Image
