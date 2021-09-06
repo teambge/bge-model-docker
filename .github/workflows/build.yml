@@ -8,15 +8,12 @@ jobs:
 
   base_job:
     name: Base Image Job
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Build Base Image
-        run: make build SDK_VERSION=0.1.1 ENVIRONMENT=base
 
-  build_job:
-    name: Create Build Image
-    runs-on: ubuntu-18.04
-    needs: base_job
-    steps:
-      - run: echo "build"
+      - name: Build Basic Image
+        run: make build SDK_VERSION=0.1.1 ENVIRONMENT=basic
+
+      - name: Build Build Image
+        run: make build SDK_VERSION=0.1.1 ENVIRONMENT=build
