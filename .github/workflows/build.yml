@@ -10,7 +10,7 @@ jobs:
     name: Create Base Image
     runs-on: ubuntu-18.04
     steps:
-      - run: echo "base"
+      - run: make build SDK_VERSION=0.1.1 ENVIRONMENT=base
 
   build_job:
     name: Create Build Image
